@@ -163,7 +163,7 @@ final class PeekController {
         }
         // Painted: pages that leave their background to the browser get white again.
         if change == .loading, let tab, !tab.isLoading, let webView = tab.webView {
-            webView.setValue(true, forKey: "drawsBackground")
+            webView.refreshPageAppearance()
             content.layer?.backgroundColor = nil
             // A full-width scroll track looks heavy in a small card: a slim one that floats over the page instead.
             webView.evaluateJavaScript(Self.slimScrollbars, completionHandler: nil)
@@ -282,7 +282,7 @@ final class PeekController {
         tab.isPeek = false
         // Promoted before it finished loading: it never gets the peek's "painted" step, so it draws its own
         // background from here on, like any tab.
-        tab.webView?.setValue(true, forKey: "drawsBackground")
+        tab.webView?.refreshPageAppearance()
         content.layer?.backgroundColor = nil
         let target = controller.root.cardFrame
         scrim.hide()

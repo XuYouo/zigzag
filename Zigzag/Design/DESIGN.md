@@ -1,5 +1,11 @@
 # Zigzag's design language
 
+Settings → Appearance now owns the global window background: native frosted glass by default, an optional local
+wallpaper, or the space's original look. Material density, tint transparency, wallpaper effects, and page canvas
+opacity are adjustable; see `docs/appearance.md`. Navigation lists and segmented filters keep their text and icons
+still on press; only the shared selection fill moves, with an eased position/size transition and no spring.
+The older space-color descriptions below describe the Space Color background mode.
+
 Thin, calm and warm: each space is a soft color of its own, and the whole window wears it. The chrome on top is
 light: thin icons, light type with a clear hierarchy, no boxes, lines only where they structure something, and every
 fill a wash of the space's own color, so a space feels like yours rather than a gray template. Motion is short,

@@ -105,17 +105,20 @@ final class Autofill: NSObject, WKScriptMessageHandler {
                     }
                 debugLog("autofill \(origin.host): \(logins.count) of \(all.count) match")
                 guard current == self.generation else { return }
+                let nativeItems: [AutofillMenu.Item] = origin.scheme == "https" ? [.nativePassword] : []
                 if logins.isEmpty {
                     if !all.isEmpty, self.shouldSayMissing(on: origin) {
-                        self.show([.missing], under: field, in: webView, frame: frame, origin: origin)
+                        self.show([.missing] + nativeItems, under: field, in: webView, frame: frame, origin: origin)
                     } else if readable, all.isEmpty, let browser = self.browserToImport() {
-                        self.show([.importFrom(browser)], under: field, in: webView, frame: frame, origin: origin)
+                        self.show([.importFrom(browser)] + nativeItems, under: field, in: webView, frame: frame, origin: origin)
+                    } else if !nativeItems.isEmpty {
+                        self.show(nativeItems, under: field, in: webView, frame: frame, origin: origin)
                     } else {
                         self.hide()
                     }
                     return
                 }
-                self.show(logins.map { .login($0) }, under: field, in: webView, frame: frame, origin: origin)
+                self.show(Array(logins.prefix(7)).map { .login($0) } + nativeItems, under: field, in: webView, frame: frame, origin: origin)
             }
         case "blur":
             generation += 1
@@ -204,6 +207,10 @@ final class Autofill: NSObject, WKScriptMessageHandler {
     private func pick(_ item: AutofillMenu.Item) {
         switch item {
         case .login(let login): fill(login)
+        case .nativePassword:
+            guard let target else { return }
+            hide()
+            NativePasswordAutofill.show(in: target.webView, frame: target.frame, origin: target.origin)
         case .generate: fillGenerated()
         case .contact: fillContact()
         case .importFrom:
@@ -577,6 +584,7 @@ final class Autofill: NSObject, WKScriptMessageHandler {
 final class AutofillMenu: FloatingPanelView {
     enum Item {
         case login(Credential)
+        case nativePassword
         case generate
         case contact
         /// Nothing saved for this site: a way to look.
@@ -661,6 +669,11 @@ private final class AutofillRow: InteractiveView {
             detail = Label(String(localized: "Password for \(login.origin.displayName)", comment: "Under a login in the menu that fills a password into a page. The placeholder is a site, like github.com."), font: Tokens.Font.small(), color: Tokens.Color.textSecondary)
             icon.image = origin.url.flatMap { FaviconStore.shared.cachedIcon(for: $0) } ?? Tokens.Symbol.image("key")
             icon.contentTintColor = Tokens.Color.textSecondary
+        case .nativePassword:
+            name = Label(String(localized: "Use macOS Passwords…", comment: "Opens native password fields with system AutoFill for this website."), font: Tokens.Font.body(.medium), color: Tokens.Color.textPrimary)
+            detail = Label(String(localized: "Choose a login with system AutoFill", comment: "Under the native password fill menu item."), font: Tokens.Font.small(), color: Tokens.Color.textSecondary)
+            icon.image = Tokens.Symbol.image("key.fill")
+            icon.contentTintColor = Tokens.Color.accent
         case .importFrom(let browser):
             name = Label(String(localized: "Bring your passwords from \(browser)", comment: "A row in the fill-password menu when nothing is saved yet. The placeholder is a browser, like Chrome."), font: Tokens.Font.body(.medium), color: Tokens.Color.textPrimary)
             detail = Label(String(localized: "Import them, and sign in here in one click", comment: "Under the row offering to import passwords, in the fill-password menu."), font: Tokens.Font.small(), color: Tokens.Color.textSecondary)

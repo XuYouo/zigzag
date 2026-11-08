@@ -19,6 +19,25 @@ enum SettingsPage {
         return SettingsPane.allCases.first { $0.path == name } ?? .general
     }
 
+    /// A native pane change is authoritative while its address is mirrored asynchronously in WebKit. Earlier
+    /// replaceState echoes must not send the highlight back to a section the user has already left.
+    struct AddressMirror {
+        private(set) var selection: SettingsPane?
+
+        mutating func select(_ pane: SettingsPane) -> URL {
+            selection = pane
+            return SettingsPage.url(for: pane)
+        }
+
+        /// Real navigation (including Reload and Back/Forward) makes the loaded address authoritative again.
+        mutating func navigationStarted() { selection = nil }
+
+        func acceptedAddress(_ reported: URL) -> URL? {
+            guard let selection, SettingsPage.isSettings(reported) else { return reported }
+            return SettingsPage.pane(for: reported) == selection ? SettingsPage.url(for: selection) : nil
+        }
+    }
+
     /// ⌘,: the Settings tab this window already has (in this space first, then any other), or a new one; at `pane`
     /// when one is asked for.
     static func open(_ pane: SettingsPane? = nil, in controller: BrowserWindowController) {

@@ -551,7 +551,7 @@ final class LookSwatch: InteractiveView {
 /// Shade runs light to dark in the space's own color; see-through runs from solid to clear over a checkerboard;
 /// grain builds texture from smooth on the left.
 final class LookSlider: NSView {
-    enum Kind { case shade, seeThrough, grain }
+    enum Kind { case shade, seeThrough, grain, amount }
     let kind: Kind
     var value: Double = 0 { didSet { needsLayout = true } }
     /// The colors along the track: light to dark for shade; the space's one or two colors otherwise.
@@ -627,6 +627,7 @@ final class LookSlider: NSView {
                 // Solid on the left, and as thin as the frame gets on the right.
                 case .seeThrough: track.colors = [first.withAlphaComponent(1).cgColor, first.withAlphaComponent(0.2).cgColor]
                 case .grain: track.colors = [first.cgColor, (colors.last ?? first).cgColor]
+                case .amount: track.colors = [first.withAlphaComponent(0.2).cgColor, first.cgColor]
                 }
                 track.borderColor = Tokens.Color.panelEdge.cgColor
                 knob.shadowColor = NSColor.black.withAlphaComponent(0.25).cgColor
@@ -658,6 +659,7 @@ final class LookSlider: NSView {
         case .shade: setAccessibilityValue(value < 0.01 ? String(localized: "Lightest", comment: "VoiceOver, the Shade slider's value at its lightest.") : value > 0.99 ? String(localized: "Darkest", comment: "VoiceOver, the Shade slider's value at its deepest.")
                                            : String(localized: "\(amount) percent dark", comment: "VoiceOver, the Shade slider's value, like “40 percent dark”."))
         case .seeThrough: setAccessibilityValue(value < 0.01 ? String(localized: "Solid", comment: "VoiceOver, the See-through slider's value when nothing shows through.") : percent)
+        case .amount: setAccessibilityValue(percent)
         case .grain: setAccessibilityValue(value < 0.01 ? String(localized: "Smooth", comment: "VoiceOver, the Grain slider's value with no grain.") : percent)
         }
     }

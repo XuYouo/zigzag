@@ -169,18 +169,25 @@ enum Brand {
         /// Zigzag's own blue, for windows that belong to the app rather than a space (see `Tokens.Color.accent`).
         static let brand = Theme(hue: Brand.navyHue)
 
+        /// Unknown desktop and wallpaper colors need the system's plain, adaptive inks.
+        private var onWindowBackground: Theme {
+            var theme = self
+            if BrowserAppearance.background != .space { theme.inkGrounds = [] }
+            return theme
+        }
+
         /// The theme for a view: its browser window's space, or the brand blue in any other window.
         /// A view not in a window yet gets the brand; views refresh when they join one.
         @MainActor static func `for`(_ view: NSView?) -> Theme {
             guard let window = view?.window else { return brand }
             guard let controller = WindowManager.shared.controllers.first(where: { $0.window === window }) else { return brand }
-            return of(controller.tabManager.currentSpace)
+            return of(controller.tabManager.currentSpace).onWindowBackground
         }
 
         /// The space in front: the key browser window's, or the first one's.
         @MainActor static var current: Theme {
             let controller = WindowManager.shared.keyController ?? WindowManager.shared.controllers.first
-            return of(controller?.tabManager.currentSpace)
+            return of(controller?.tabManager.currentSpace).onWindowBackground
         }
     }
 

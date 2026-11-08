@@ -148,7 +148,8 @@ class ListItem: InteractiveView {
         self.title = title
         label = Label(title, font: Tokens.Font.row(), color: Tokens.Color.textPrimary)
         super.init(frame: .zero)
-        pressScales = true
+        // Navigation stays in place; its shared selection is the only thing that moves.
+        pressScales = false
         layer?.cornerRadius = Tokens.Radius.row
         layer?.cornerCurve = .continuous
         // Monochrome outline symbols in a favicon's slot, as the sidebar's rows have them.
@@ -182,15 +183,18 @@ class ListItem: InteractiveView {
 
     override func stateDidChange(animated: Bool) {
         let accent = Brand.Theme.for(self).accent
-        let fill: NSColor? = isSelected ? (drawsSelection ? accent.withAlphaComponent(isPressed ? Tokens.Color.selectionPressedAlpha : Tokens.Color.selectionAlpha) : nil)
+        // A shared indicator must be the only filled rectangle. A destination's pressed/hover wash would
+        // appear before the indicator arrives, then disappear on selection: a second block flashing on click.
+        let fill: NSColor? = !drawsSelection ? nil
+            : isSelected ? accent.withAlphaComponent(isPressed ? Tokens.Color.selectionPressedAlpha : Tokens.Color.selectionAlpha)
             : isPressed ? Tokens.Color.pressedFill : isHovered ? Tokens.Color.hoverFill : nil
         layer?.set(backgroundColor: fill.map { cgColor($0) }, animated: animated && !isHovered)
-        icon.contentTintColor = isSelected ? accent : Tokens.Color.icon
+        icon.contentTintColor = isSelected || (!drawsSelection && (isHovered || isPressed)) ? accent : Tokens.Color.icon
     }
 }
 
 /// One selection that glides between a list's places or a filter's segments, instead of each lighting on its own:
-/// a soft fill of the accent, `Radius.row`, moved with `Motion.glide` in `Motion.highlightGlide`. Put it behind the
+/// a soft fill of the accent, `Radius.row`, moved in `Motion.highlightGlide`. Put it behind the
 /// items; a change from the keyboard, or with Reduce Motion, lands at once.
 final class SelectionGlide: ColorView {
     var tint: NSColor? { didSet { color = tint?.withAlphaComponent(Tokens.Color.selectionAlpha) } }
@@ -208,12 +212,37 @@ final class SelectionGlide: ColorView {
     /// Moves to `frame`; `animated` when the choice was made with the pointer.
     func move(to frame: NSRect, animated: Bool) {
         isHidden = frame.isEmpty
-        if animated && !Tokens.Motion.isFromKey && frame.width > 0 && self.frame.width > 0 {
-            Tokens.Motion.glide(self, to: frame, duration: Tokens.Motion.highlightGlide, timing: Tokens.Motion.easeOut)
-        } else {
-            layer?.removeAnimation(forKey: "glide")
-            Tokens.Motion.withoutAnimation { self.frame = frame }
+        guard let layer else { self.frame = frame; return }
+        // A content relayout often follows a selection change. Reasserting its destination must not stop the
+        // movement already on screen. Reduce Motion still takes effect immediately if enabled during a glide.
+        if self.frame == frame {
+            if Tokens.Motion.reduceMotion { layer.removeAnimation(forKey: "glide") }
+            return
         }
+        let shouldAnimate = animated && !Tokens.Motion.isFromKey && !Tokens.Motion.reduceMotion
+            && !frame.isEmpty && !self.frame.isEmpty
+        let shown = layer.presentation() ?? layer
+        let position = shown.position, bounds = shown.bounds
+        Tokens.Motion.withoutAnimation { self.frame = frame }
+        layer.removeAnimation(forKey: "glide")
+        guard shouldAnimate else { return }
+
+        // Animate the fill's bounds as well as its position: filters can have different widths, but neither
+        // their text nor their icons should ever shrink or spring. Interrupted choices start where the fill is.
+        let travel = CABasicAnimation(keyPath: "position")
+        travel.fromValue = NSValue(point: position)
+        travel.toValue = NSValue(point: layer.position)
+        travel.duration = Tokens.Motion.highlightGlide * Tokens.Motion.debugSlowdown
+        let resize = CABasicAnimation(keyPath: "bounds")
+        resize.fromValue = NSValue(rect: bounds)
+        resize.toValue = NSValue(rect: layer.bounds)
+        resize.duration = travel.duration
+        let animation = CAAnimationGroup()
+        animation.animations = [travel, resize]
+        animation.duration = travel.duration
+        animation.timingFunction = Tokens.Motion.easeOut
+        animation.fillMode = .backwards
+        layer.add(animation, forKey: "glide")
     }
 }
 

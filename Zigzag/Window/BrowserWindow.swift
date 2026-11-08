@@ -55,6 +55,16 @@ final class BrowserWindow: NSWindow {
         didSet { if title != oldValue { layoutTrafficLights() } }
     }
 
+    /// The visible page's name and address, shared by tab switches and same-document navigation.
+    func updatePageIdentity(title: String, url: URL?) {
+        // AppKit relays the title bar even when representedURL is assigned nil again. Settings changes only
+        // its accessibility address: resetting an already empty document URL moves the lights out and back.
+        if self.title != title { self.title = title }
+        if representedURL != nil { representedURL = nil }
+        // Accessibility clients (1Password, Raycast, Shortcuts) still need the current page's full address.
+        setAccessibilityDocument(url?.absoluteString)
+    }
+
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { true }
 
@@ -240,6 +250,9 @@ final class BrowserWindow: NSWindow {
     /// Width the traffic lights take up, including their trailing gap.
     var trafficLightsWidth: CGFloat {
         guard let close = standardWindowButton(.closeButton), let zoom = standardWindowButton(.zoomButton) else { return 60 }
+        // AppKit resets the buttons one at a time. Their live frames can briefly report a narrower/wider span,
+        // which would move the sidebar toggle beside them. Use the same settled spacing as their placement.
+        if let buttonSpacing { return buttonSpacing * 2 + zoom.frame.width }
         return zoom.frame.maxX - close.frame.minX
     }
 

@@ -20,6 +20,7 @@ final class PageCardView: NSView {
     /// What covers the shown tab's page: its PDF viewer, over WebKit's own, or Settings.
     private weak var document: NSView?
     private var documentToken: SignalToken?
+    private var appearanceToken: SignalToken?
 
     /// No corners, edge or shadow: the page fills the window.
     var isEdgeToEdge: Bool {
@@ -205,6 +206,7 @@ final class PageCardView: NSView {
         layer?.shadowRadius = Tokens.Shadow.cardRadius
         layer?.shadowOffset = Tokens.Shadow.cardOffset
 
+        appearanceToken = BrowserAppearance.changed.observe { [weak self] in self?.refreshColors() }
         clip.wantsLayer = true
         clip.layer?.cornerRadius = Tokens.Radius.card
         clip.layer?.cornerCurve = .continuous
@@ -269,7 +271,7 @@ final class PageCardView: NSView {
     private func refreshColors() {
         paintProgress()
         Tokens.Motion.withoutAnimation {
-            clip.layer?.backgroundColor = cgColor(Tokens.Color.cardBackground)
+            clip.layer?.backgroundColor = cgColor(BrowserAppearance.translucentSurfaces ? .clear : Tokens.Color.cardBackground)
             edge.borderColor = cgColor(Tokens.Color.cardEdge)
             // Meeting the window's edges, the page's own edge is its outline: a drawn one runs along the window's edge
             // and round the corners as an extra line.
@@ -297,7 +299,7 @@ final class PageCardView: NSView {
             clip.addSubview(newWebView, positioned: .below, relativeTo: placeholder)
         }
         webView = newWebView
-        if let old, old.superview === clip { old.removeFromSuperview() }
+        if let old, old.superview === clip { old.isHidden = false; old.removeFromSuperview() }
         let owner = (newWebView as? BrowserWebView)?.owner
         documentToken = owner?.changed.observe { [weak self] change in if change == .pdf || change == .settings { self?.refreshDocument() } }
         refreshDocument()
@@ -312,6 +314,8 @@ final class PageCardView: NSView {
     private func refreshDocument() {
         let owner = (webView as? BrowserWebView)?.owner
         let viewer: NSView? = owner?.pdfViewer ?? owner?.settingsView
+        // The Settings placeholder is opaque HTML. Hide it while the native, translucent page covers it.
+        webView?.isHidden = viewer is SettingsView
         guard viewer !== document else { return }
         if let document, document.superview === clip {
             // Typing was in the viewer going away: it goes back to the page rather than nowhere.

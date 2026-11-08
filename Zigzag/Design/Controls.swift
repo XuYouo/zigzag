@@ -764,6 +764,7 @@ final class FilledField: NSView {
         }
         if secure {
             let secureField = NSSecureTextField()
+            secureField.contentType = .password
             secureField.font = font
             secureField.placeholderAttributedString = NSAttributedString(string: placeholder, attributes: [.font: font, .foregroundColor: Tokens.Color.textTertiary])
             field = secureField
@@ -902,7 +903,8 @@ final class SegmentedPills: NSView {
         init(_ text: String) {
             title = Label(text, font: Tokens.Font.body(.medium), color: Tokens.Color.textSecondary)
             super.init(frame: .zero)
-            pressScales = true
+            // The selection moves between filters; the labels themselves stay still.
+            pressScales = false
             layer?.cornerRadius = Tokens.Radius.field
             layer?.cornerCurve = .continuous
             [title, count].forEach { addSubview($0) }
@@ -930,10 +932,10 @@ final class SegmentedPills: NSView {
         }
 
         override func stateDidChange(animated: Bool) {
-            // The chosen one's fill is the row's one gliding selection (`SelectionGlide`).
-            let fill: NSColor? = isSelected ? nil : isPressed ? Tokens.Color.pressedFill : isHovered ? Tokens.Color.hoverFill : nil
-            layer?.set(backgroundColor: fill.map { cgColor($0) }, animated: animated && !isHovered)
-            title.textColor = isSelected ? Tokens.Color.textPrimary : Tokens.Color.textSecondary
+            // Keep one moving fill, including while the destination is hovered or pressed. Text gives
+            // pointer feedback without flashing another rectangle beneath the traveling selection.
+            layer?.set(backgroundColor: nil, animated: false)
+            title.textColor = isSelected || isHovered || isPressed ? Tokens.Color.textPrimary : Tokens.Color.textSecondary
             count.textColor = isSelected ? Tokens.Color.textSecondary : Tokens.Color.textTertiary
         }
     }

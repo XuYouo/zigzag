@@ -1,6 +1,6 @@
 name: Zigzag
 options:
-  bundleIdPrefix: wang.zigao
+  bundleIdPrefix: com.ocean
   deploymentTarget:
     macOS: "15.4"
   createIntermediateGroups: true
@@ -22,7 +22,7 @@ settings:
     ENABLE_HARDENED_RUNTIME: YES
     DEAD_CODE_STRIPPING: YES
     CODE_SIGN_STYLE: Manual
-    DEVELOPMENT_TEAM: 432GL3WKY2
+    DEVELOPMENT_TEAM: 8T9F96V6V4
     # Every word Zigzag says is in Resources/Localizable.xcstrings (and the permission prompts in InfoPlist.xcstrings):
     # the compiler lists each String(localized:) it finds, so the catalog can be kept in step with the code.
     SWIFT_EMIT_LOC_STRINGS: YES
@@ -31,7 +31,8 @@ settings:
     Debug:
       # The dev build is its own app, "Zigzag Dev", with its own settings, data and website logins, so it never
       # touches the Zigzag you use day to day.
-      PRODUCT_BUNDLE_IDENTIFIER: wang.zigao.zigzag.dev
+      DEVELOPMENT_TEAM: 8T9F96V6V4
+      PRODUCT_BUNDLE_IDENTIFIER: com.ocean.zigzag.dev
       APP_DISPLAY_NAME: Zigzag Dev
       # A real identity, so the signature stays the same across builds and apps that check who they're
       # talking to (1Password's browser integration) keep trusting it.
@@ -41,13 +42,13 @@ settings:
       SWIFT_OPTIMIZATION_LEVEL: "-O"
       ENABLE_HARDENED_RUNTIME: NO
     Release:
-      PRODUCT_BUNDLE_IDENTIFIER: wang.zigao.zigzag
+      PRODUCT_BUNDLE_IDENTIFIER: com.ocean.zigzag
       APP_DISPLAY_NAME: Zigzag
-      # Archived with development signing; scripts/release.sh exports it signed with Developer ID, and Xcode makes
-      # the Developer ID profile the Keychain access group needs.
+      # The local daily-use build uses our own signing identity and Keychain group.
       CODE_SIGN_IDENTITY: "Apple Development"
       CODE_SIGN_STYLE: Automatic
-      SPARKLE_PUBLIC_KEY: fcLCAtuyhCGTC62F2cDfj/vAMXgFvrpQSyF3540+hq0=
+      # Upstream updates must not replace our locally modified application.
+      SPARKLE_PUBLIC_KEY: ""
       CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
       OTHER_CODE_SIGN_FLAGS: "--timestamp"
 targets:
@@ -127,11 +128,7 @@ targets:
     settings:
       base:
         CODE_SIGN_ENTITLEMENTS: Zigzag/Zigzag.entitlements
-      configs:
-        # Releases add passkeys: Apple granted the browser passkey entitlement to wang.zigao.zigzag only, so the dev
-        # build (its own bundle id) can't carry it. The two files are the same apart from that key.
-        Release:
-          CODE_SIGN_ENTITLEMENTS: Zigzag/ZigzagRelease.entitlements
+      # The upstream passkey entitlement is not granted to our local signing team.
   ZigzagTests:
     type: bundle.unit-test
     platform: macOS
@@ -141,7 +138,7 @@ targets:
       - target: Zigzag
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: wang.zigao.zigzag.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.ocean.zigzag.tests
         GENERATE_INFOPLIST_FILE: YES
         TEST_HOST: $(BUILT_PRODUCTS_DIR)/Zigzag.app/Contents/MacOS/Zigzag
         BUNDLE_LOADER: $(TEST_HOST)
@@ -151,5 +148,12 @@ schemes:
       targets:
         Zigzag: all
         ZigzagTests: [test]
+    run:
+      config: Release
+      debugEnabled: false
+      enableGPUFrameCaptureMode: disabled
+      enableGPUValidationMode: false
+      disableMainThreadChecker: true
+      disableThreadPerformanceChecker: true
     test:
       targets: [ZigzagTests]

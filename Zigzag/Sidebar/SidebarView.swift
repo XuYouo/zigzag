@@ -359,7 +359,7 @@ final class SidebarView: NSView {
     }
     private let topSeparator = ColorView(color: Tokens.Color.separator)
     /// Width reserved on the left of the top row for the traffic lights.
-    var trafficLightsWidth: CGFloat = 52 { didSet { needsLayout = true } }
+    var trafficLightsWidth: CGFloat = 52 { didSet { if trafficLightsWidth != oldValue { needsLayout = true } } }
     var showsTrafficLights = true { didSet { needsLayout = true } }
 
     override init(frame: NSRect) {

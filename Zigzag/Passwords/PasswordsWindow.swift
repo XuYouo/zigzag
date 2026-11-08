@@ -83,6 +83,7 @@ private final class CategoryItem: ListItem {
 
 final class PasswordsView: NSView {
     private let column = FlippedView()
+    private let categorySelection = SelectionGlide()
     private let columnTitle = PageTitleView(String(localized: "Passwords", comment: "Title over the column of kinds in the Passwords window."))
     private let columnEdge = ColorView(color: Tokens.Color.separator)
     private var items: [CategoryItem] = []
@@ -115,10 +116,11 @@ final class PasswordsView: NSView {
         wantsLayer = true
         items = Category.allCases.map { category in
             let item = CategoryItem(category)
+            item.drawsSelection = false
             item.onClick = { [weak self] _ in self?.choose(category) }
             return item
         }
-        ([columnTitle] + items as [NSView]).forEach { column.addSubview($0) }
+        ([categorySelection, columnTitle] + items as [NSView]).forEach { column.addSubview($0) }
         [column, columnEdge, header, listScroll, listEdge, detail, empty, locked].forEach { addSubview($0) }
         header.leading = paneTitle
         header.trailing = [search, importButton, exportButton]
@@ -177,6 +179,7 @@ final class PasswordsView: NSView {
         // it's shown in a browser window, the plain form gray in a window of its own.
         column.wantsLayer = true
         column.layer?.backgroundColor = cgColor(Brand.Theme.for(self).wash)
+        categorySelection.tint = Brand.Theme.for(self).accent
     }
     private lazy var themeToken: SignalToken = Brand.themeChanged.observe { [weak self] in self?.needsDisplay = true }
 
@@ -228,7 +231,7 @@ final class PasswordsView: NSView {
         locked.text = Self.lockedPrompt
         locked.isHidden = !isLocked
         // Locked, the page is just its title and the way in: no kinds, no counts, no search.
-        ([columnEdge, header, listScroll, listEdge, detail, empty] + items as [NSView]).forEach { $0.isHidden = isLocked }
+        ([categorySelection, columnEdge, header, listScroll, listEdge, detail, empty] + items as [NSView]).forEach { $0.isHidden = isLocked }
         if isLocked {
             locked.appear()
         } else {
@@ -290,8 +293,14 @@ final class PasswordsView: NSView {
         selection = nil
         selectedNever = nil
         refreshCounts()
+        moveCategorySelection(animated: true)
         rebuildList()
         listScroll.contentView.scroll(to: .zero)
+    }
+
+    private func moveCategorySelection(animated: Bool) {
+        categorySelection.tint = Brand.Theme.for(self).accent
+        categorySelection.move(to: isLocked ? .zero : items.first { $0.isSelected }?.frame ?? .zero, animated: animated)
     }
 
     private var query: String { search.stringValue.trimmingCharacters(in: .whitespaces).lowercased() }
@@ -469,6 +478,7 @@ final class PasswordsView: NSView {
                 y += Tokens.Page.rowHeight + 2
             }
         }
+        moveCategorySelection(animated: false)
 
         let area = NSRect(x: columnWidth + line, y: 0, width: max(0, bounds.width - columnWidth - line), height: bounds.height)
         header.frame = NSRect(x: area.minX, y: top, width: area.width, height: Tokens.Page.headerHeight)
@@ -691,7 +701,7 @@ private final class DetailView: NSView, NSTextFieldDelegate {
     private let saveButton = PillButton(title: String(localized: "Save", comment: "Button that saves the changes to a login in the Passwords window."), style: .prominent)
     private let cancelButton = PillButton(title: String(localized: "Cancel", comment: "Button that stops editing a login in the Passwords window."), style: .plain)
     private let usernameField = FilledField(placeholder: String(localized: "Username", comment: "Name of a field of a saved login in the Passwords window."))
-    private let passwordField = FilledField(placeholder: String(localized: "Password", comment: "Name of a field of a saved login in the Passwords window."))
+    private let passwordField = FilledField(placeholder: String(localized: "Password", comment: "Name of a field of a saved login in the Passwords window."), secure: true)
     private let notesField = FilledField(placeholder: String(localized: "Notes", comment: "Name of a field of a saved login in the Passwords window."))
     private let neverBody = NSTextField(wrappingLabelWithString: "")
     private let allowButton = PillButton(title: String(localized: "Allow Saving", comment: "Button for a Never Saved site in the Passwords window: offer to save its passwords again."), style: .prominent)
@@ -712,6 +722,7 @@ private final class DetailView: NSView, NSTextFieldDelegate {
         [icon, title, subtitle, warning, card, editButton, deleteButton, saveButton, cancelButton, neverBody, allowButton].forEach { addSubview($0) }
         [websiteRow, usernameRow, passwordRow, notesRow].forEach { card.add($0) }
         deleteButton.isDestructive = true
+        usernameField.field.contentType = .username
         passwordField.field.font = .monospacedSystemFont(ofSize: Tokens.TypeSize.body, weight: .regular)
 
         usernameRow.actions = [("doc.on.doc", String(localized: "Copy Username", comment: "Tooltip of a button by a login's username in the Passwords window."), { [weak self] in self?.copyUsername() })]

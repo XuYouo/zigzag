@@ -5,6 +5,11 @@ import WebKit
 final class BrowserWebView: WKWebView {
     weak var owner: Tab?
     private lazy var swipe = SwipeNavigator(webView: self)
+    private var webAppearance: WebAppearance?
+
+    func installPageAppearance() { webAppearance = WebAppearance(self) }
+    // A new document (or a page leaving Peek) must apply again even when the settings did not change.
+    func refreshPageAppearance() { webAppearance?.refresh(force: true) }
 
     /// A swipe over something covering the page (the PDF viewer) goes back or forward like one over the page,
     /// unless it can still scroll that way (`room`).

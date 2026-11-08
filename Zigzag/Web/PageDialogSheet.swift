@@ -10,6 +10,7 @@ final class PageDialogSheet: NSView {
         let placeholder: String
         var value: String = ""
         var secure = false
+        var contentType: NSTextContentType? = nil
     }
 
     enum Result {
@@ -56,6 +57,7 @@ final class PageDialogSheet: NSView {
         [header, body, buttons].forEach { panel.addSubview($0) }
         for field in fields {
             let input = FilledField(placeholder: field.placeholder, secure: field.secure)
+            if let contentType = field.contentType { input.field.contentType = contentType }
             input.stringValue = field.value
             panel.addSubview(input)
             inputs.append(input)
@@ -161,6 +163,8 @@ final class PageDialogSheet: NSView {
         let completion = self.completion
         self.completion = { _ in }
         removeFromSuperview()
+        // The completed result owns the values briefly; detached native editors must not retain a password.
+        inputs.forEach { $0.stringValue = "" }
         completion(result)
     }
 

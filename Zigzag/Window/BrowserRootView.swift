@@ -605,6 +605,17 @@ final class BrowserRootView: ColorView {
 
     /// Frosted glass behind the frame, for spaces that want the desktop to show through: blurred, so what's behind
     /// reads as soft shapes and never as text under the sidebar's own. The sidebar's material, the clearest there is.
+    private let wallpaper = WallpaperBackdrop(frame: .zero)
+
+    func refreshWallpaper() {
+        if wallpaper.superview == nil {
+            addSubview(wallpaper, positioned: .below, relativeTo: nil)
+            wallpaper.layer?.zPosition = -2.5
+        }
+        wallpaper.frame = bounds
+        wallpaper.refresh()
+    }
+
     private lazy var glassView: NSVisualEffectView = {
         let glass = NSVisualEffectView()
         glass.blendingMode = .behindWindow
@@ -654,7 +665,7 @@ final class BrowserRootView: ColorView {
         }
         clearGlass?.isHidden = true
         glassView.isHidden = !on
-        glassView.material = .sidebar
+        glassView.material = BrowserAppearance.background == .space ? .sidebar : BrowserAppearance.material.value
         if on { glassView.frame = glassFrame }
     }
     /// Where the glass needs to be: only what you can see through. With the page meeting the sidebar, that's the
@@ -663,7 +674,7 @@ final class BrowserRootView: ColorView {
     private var glassFrame: NSRect {
         // An empty space shows the frame where the page would be: glass under all of it.
         // A split view's seam between its two pages shows the frame too: glass under all of it then.
-        guard sidebarVisible, card.isAttached, !card.isHidden, !isEmpty, secondCard.isHidden || secondCard.alphaValue == 0 else { return bounds }
+        guard !BrowserAppearance.translucentSurfaces, sidebarVisible, card.isAttached, !card.isHidden, !isEmpty, secondCard.isHidden || secondCard.alphaValue == 0 else { return bounds }
         return NSRect(x: 0, y: 0, width: min(bounds.width, sidebarWidth + Tokens.Radius.attached * 2), height: bounds.height)
     }
     private var glassGrainBounds: NSRect { NSRect(origin: .zero, size: glassFrame.size) }
@@ -709,7 +720,7 @@ final class BrowserRootView: ColorView {
     func refreshGlassOcclusion() {
         let visible = window?.occlusionState.contains(.visible) ?? true
         // Nothing to see through: the page runs edge to edge, or the tab overview covers the window with its own glass.
-        let covered = (isEdgeToEdge && !card.isHidden && !isEmpty) || glassCovered
+        let covered = (isEdgeToEdge && !card.isHidden && !isEmpty && !BrowserAppearance.translucentSurfaces) || glassCovered
         let on = glassWanted && visible && !covered
         if let clearGlass, !clearGlass.isHidden || on { clearGlass.alphaValue = on ? 1 : 0 }
         glassView.alphaValue = on ? 1 : 0
@@ -794,6 +805,7 @@ final class BrowserRootView: ColorView {
 
     override func layout() {
         super.layout()
+        wallpaper.frame = bounds
         Tokens.Motion.withoutAnimation { grainLayer.frame = bounds; gradientLayer.frame = bounds }
         if !glassView.isHidden { glassView.frame = glassFrame }
         if let clearGlass, !clearGlass.isHidden {

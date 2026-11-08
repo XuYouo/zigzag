@@ -436,10 +436,11 @@ final class SpaceSettingsRow: InteractiveView, SettingsSearchable {
 
 /// The parts of Settings, each a pane of its own, picked from the column of sections at the left.
 enum SettingsPane: Int, CaseIterable {
-    case general, spaces, passwords, privacy, translation, extensions, shortcuts
+    case general, appearance, spaces, passwords, privacy, translation, extensions, shortcuts
 
     var title: String {
         switch self {
+        case .appearance: String(localized: "Appearance", comment: "A section of Settings.")
         case .general: String(localized: "General", comment: "A section of Settings.")
         case .spaces: String(localized: "Spaces", comment: "A section of Settings.")
         case .passwords: String(localized: "Passwords", comment: "A section of Settings.")
@@ -453,6 +454,7 @@ enum SettingsPane: Int, CaseIterable {
     var symbol: String {
         switch self {
         case .general: "gearshape"
+        case .appearance: "paintpalette"
         case .spaces: "square.stack"
         case .passwords: "key"
         case .privacy: "hand.raised"
@@ -509,6 +511,8 @@ final class SettingsView: NSView, NSTextFieldDelegate {
     private let importGroup = FormGroup()
     private let spacesGroup = FormGroup()
     private let windowGroup = FormGroup()
+    private let appearanceSettings = AppearanceSettings()
+    private var appearanceToken: SignalToken?
     private let passwordsGroup = FormGroup()
     private let passwordsWindowGroup = FormGroup()
     private let privacyGroup = FormGroup()
@@ -600,7 +604,7 @@ final class SettingsView: NSView, NSTextFieldDelegate {
     override var acceptsFirstResponder: Bool { true }
     override var wantsUpdateLayer: Bool { true }
     override func updateLayer() {
-        layer?.backgroundColor = cgColor(Tokens.Color.surface)
+        layer?.backgroundColor = cgColor(BrowserAppearance.surfaceColor)
         column.layer?.backgroundColor = cgColor(Brand.Theme.for(self).wash)
     }
 
@@ -624,6 +628,11 @@ final class SettingsView: NSView, NSTextFieldDelegate {
         addSubview(column)
         addSubview(columnEdge)
         themeToken = Brand.themeChanged.observe { [weak self] in self?.needsDisplay = true }
+
+        appearanceSettings.build(in: self)
+        appearanceToken = BrowserAppearance.changed.observe { [weak self] in
+            self?.needsDisplay = true
+        }
 
         // General
         engine.options = SearchEngine.allCases.map { DropdownButton.Option(title: $0.name, image: Self.engineIcon($0)) }
@@ -732,7 +741,7 @@ final class SettingsView: NSView, NSTextFieldDelegate {
         windowGroup.add(FormRow(title: String(localized: "Favorites per row", comment: "A setting in Settings › General: how many favorites' tiles sit side by side in the sidebar."),
                                 detail: String(localized: "Automatic fits fewer, larger ones in a narrow sidebar.", comment: "Explanation under “Favorites per row” in Settings › General."),
                                 control: favoritesPerRow))
-        windowGroup.add(FormRow(title: String(localized: "Ask before quitting", comment: "A setting in Settings › General."),
+        generalGroup.add(FormRow(title: String(localized: "Ask before quitting", comment: "A setting in Settings › General."),
                                 detail: String(localized: "So ⌘Q never closes everything by accident.", comment: "Explanation under “Ask before quitting” in Settings › General."),
                                 control: quitToggle))
         motionToggle.onChange = { on in Tokens.Motion.reducesMotionHere = on }
@@ -1249,8 +1258,9 @@ final class SettingsView: NSView, NSTextFieldDelegate {
     /// Each section's groups and their headings, as a search goes through them.
     private func groups(of pane: SettingsPane) -> [(title: String?, group: FormGroup)] {
         switch pane {
-        case .general: [(nil, generalGroup), (Self.tabsHeading, tabsGroup), (Self.windowHeading, windowGroup), (Self.downloadsHeading, downloadsGroup),
+        case .general: [(nil, generalGroup), (Self.tabsHeading, tabsGroup), (Self.downloadsHeading, downloadsGroup),
                         (nil, importGroup), (nil, versionGroup)]
+        case .appearance: [(nil, appearanceSettings.group), (Self.windowHeading, windowGroup)]
         case .spaces: [(Self.spacesHeading, spacesGroup)]
         case .passwords: [(nil, passwordsGroup), (nil, passwordsWindowGroup)]
         case .privacy: [(nil, blockingGroup), (Self.browsingDataHeading, privacyGroup), (Self.siteDataHeading, siteDataGroup), (Self.sitesHeading, sitesGroup)]
@@ -1329,10 +1339,12 @@ final class SettingsView: NSView, NSTextFieldDelegate {
         case .general:
             section(nil, generalGroup)
             section(Self.tabsHeading, tabsGroup)
-            section(Self.windowHeading, windowGroup)
             section(Self.downloadsHeading, downloadsGroup)
             section(nil, importGroup)
             section(nil, versionGroup)
+        case .appearance:
+            section(nil, appearanceSettings.group)
+            section(Self.windowHeading, windowGroup)
         case .spaces:
             section(Self.spacesHeading, spacesGroup, accessory: addSpaceButton)
             // Said once, under the list, and only when there's an order to change.

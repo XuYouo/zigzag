@@ -65,6 +65,7 @@ final class Tab: NSObject {
     private var pageIsGet = true
     /// Settings, over the page while the tab is at zigzag://settings; nil for any other page.
     private(set) var settingsView: SettingsView?
+    private var settingsAddressMirror = SettingsPage.AddressMirror()
     private(set) var isPlayingAudio = false
     private(set) var isMuted = false
     private(set) var hasLoadedOnce = false
@@ -198,6 +199,7 @@ final class Tab: NSObject {
 
         let webView = BrowserWebView(frame: NSRect(origin: .zero, size: Tokens.Metric.windowDefaultSize), configuration: configuration)
         webView.owner = self
+        webView.installPageAppearance()
         webView.navigationDelegate = self
         webView.uiDelegate = self
         // Back and forward by swiping is ours (SwipeNavigator): quicker than WebKit's sliding page.
@@ -263,6 +265,7 @@ final class Tab: NSObject {
     }
 
     private func tearDown(_ webView: BrowserWebView) {
+        settingsAddressMirror.navigationStarted()
         Autofill.shared.forget(webView)
         setPDFViewer(nil)
         if settingsView != nil {
@@ -298,6 +301,7 @@ final class Tab: NSObject {
     // MARK: Navigation
 
     func load(_ url: URL) {
+        settingsAddressMirror.navigationStarted()
         self.url = url
         changed.send(.url)
         // Extension pages and websites need differently set up web views; crossing over swaps it.
@@ -405,7 +409,7 @@ final class Tab: NSObject {
 
     /// Takes the web view's address as the tab's: the page shown now, or one Zigzag itself is loading.
     private func followAddress(of wv: WKWebView) {
-        guard let url = wv.url else { return }
+        guard let reported = wv.url, let url = settingsAddressMirror.acceptedAddress(reported) else { return }
         let hostChanged = url.host() != self.url?.host()
         if url != self.url, self.isArticle { self.isArticle = false; self.changed.send(.reader) }
         if url != self.url, self.foreignLanguage != nil || self.isTranslated {
@@ -729,6 +733,7 @@ extension Tab: WKNavigationDelegate {
             }
         }
         if isMainFrame {
+            settingsAddressMirror.navigationStarted()
             pdfFreshLoad = navigationAction.navigationType != .backForward
             pageIsGet = (navigationAction.request.httpMethod ?? "GET").uppercased() == "GET"
             // The page's ad blocking follows where it's going: allowed sites load without it. Only now, once it's
@@ -806,6 +811,7 @@ extension Tab: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+        (webView as? BrowserWebView)?.refreshPageAppearance()
         // The new page is here: its address shows.
         addressWaitsForCommit = false
         if webView.url != url { followAddress(of: webView) }
@@ -843,6 +849,7 @@ extension Tab: WKNavigationDelegate {
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        (webView as? BrowserWebView)?.refreshPageAppearance()
         // Back, Forward and reload end here too, even where the address stays the same.
         navigatedSinceSave = true
         addressWaitsForCommit = false
@@ -1104,6 +1111,14 @@ extension Tab {
 
     /// The address names the section, without adding a page to Back and Forward, so the tab comes back to it.
     private func settingsAddressFollows(_ pane: SettingsPane) {
+        // The tab and its saved address follow the native selection now. WebKit catches up later; its earlier
+        // replaceState replies are just echoes, not requests to select the old pane again.
+        let selectedURL = settingsAddressMirror.select(pane)
+        if url != selectedURL {
+            url = selectedURL
+            navigatedSinceSave = true
+            changed.send(.url)
+        }
         let path = pane == .general ? "/" : "/" + pane.path
         webView?.evaluateJavaScript("history.replaceState(null, '', '\(path)')")
     }

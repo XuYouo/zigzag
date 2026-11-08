@@ -1493,6 +1493,22 @@
         }
       }
     },
+    "A local copy fills the window and stays available if the original moves." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A local copy fills the window and stays available if the original moves."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "图片副本保存在本机并铺满窗口，移动原图后仍可使用。"
+          }
+        }
+      }
+    },
     "A password can’t be empty." : {
       "comment" : "Toast when saving a login with its password cleared.",
       "localizations" : {
@@ -2109,6 +2125,39 @@
         }
       }
     },
+    "Appearance" : {
+      "comment" : "A section of Settings.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appearance"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外观"
+          }
+        }
+      }
+    },
+    "Applies when Wallpaper is selected. Glass and Space Color keep websites’ original backgrounds. Some sites draw their own opaque content." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applies when Wallpaper is selected. Glass and Space Color keep websites’ original backgrounds. Some sites draw their own opaque content."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择“壁纸”时生效。毛玻璃和空间颜色模式保留网站原有背景。部分网站会自行绘制不透明内容。"
+          }
+        }
+      }
+    },
     "Archive tabs you haven’t used" : {
       "comment" : "A setting in Settings › General.",
       "localizations" : {
@@ -2325,6 +2374,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "后台音频和剪贴板"
+          }
+        }
+      }
+    },
+    "Balanced" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Balanced"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "适中"
           }
         }
       }
@@ -2998,6 +3063,56 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "选取图标"
+          }
+        }
+      }
+    },
+    "Choose Image…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Image…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择图片…"
+          }
+        }
+      }
+    },
+    "Choose a login using macOS Password AutoFill in the fields below, then click Fill. Check that the login belongs to this website." : {
+      "comment" : "Explains the system password picker in the native password fill sheet.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a login using macOS Password AutoFill in the fields below, then click Fill. Check that the login belongs to this website."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在下方输入框中使用 macOS 密码自动填充选择账号，确认账号属于此网站后，点击“填充”。"
+          }
+        }
+      }
+    },
+    "Choose a login with system AutoFill" : {
+      "comment" : "Under the native password fill menu item.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a login with system AutoFill"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通过系统自动填充选择账号"
           }
         }
       }
@@ -4085,6 +4200,22 @@
         }
       }
     },
+    "Couldn’t update the wallpaper" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t update the wallpaper"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法更新壁纸"
+          }
+        }
+      }
+    },
     "Couldn’t write the file. Choose another folder and try again." : {
       "comment" : "Toast in the Passwords window when the export file couldn't be written.",
       "localizations" : {
@@ -4195,6 +4326,22 @@
         }
       }
     },
+    "Default appearance" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default appearance"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "默认外观"
+          }
+        }
+      }
+    },
     "Default browser" : {
       "comment" : "A setting in Settings › General.",
       "localizations" : {
@@ -4268,6 +4415,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已删除“%@”"
+          }
+        }
+      }
+    },
+    "Dense" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dense"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "浓厚"
           }
         }
       }
@@ -4870,6 +5033,23 @@
         }
       }
     },
+    "Fill" : {
+      "comment" : "Fill credentials into the website without submitting the form.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fill"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "填充"
+          }
+        }
+      }
+    },
     "Fill forms from My Card" : {
       "comment" : "A setting in Settings › Passwords.",
       "localizations" : {
@@ -4888,6 +5068,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "用“我的名片”填写"
+          }
+        }
+      }
+    },
+    "Fill password for %@" : {
+      "comment" : "Title of the native password fill sheet; the placeholder is the exact HTTPS origin, including any nondefault port.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fill password for %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "为 %@ 填充密码"
           }
         }
       }
@@ -5196,6 +5393,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "玻璃"
+          }
+        }
+      }
+    },
+    "Glass material" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glass material"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "毛玻璃材质"
+          }
+        }
+      }
+    },
+    "Glass transparency" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glass transparency"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "毛玻璃透明度"
           }
         }
       }
@@ -6501,6 +6730,22 @@
         }
       }
     },
+    "Native Frosted Glass" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Native Frosted Glass"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原生毛玻璃"
+          }
+        }
+      }
+    },
     "Needed to fill from Bitwarden" : {
       "comment" : "Under Bitwarden in the welcome window’s list of extensions. Bitwarden is a product name.",
       "localizations" : {
@@ -6772,6 +7017,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "还没有历史记录"
+          }
+        }
+      }
+    },
+    "No image selected" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No image selected"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "尚未选择图片"
           }
         }
       }
@@ -8891,6 +9152,22 @@
         }
       }
     },
+    "Remove Wallpaper" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove Wallpaper"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移除壁纸"
+          }
+        }
+      }
+    },
     "Remove data for %@?" : {
       "comment" : "Title of the sheet that removes one site's data; the site, like apple.com.",
       "localizations" : {
@@ -9166,6 +9443,22 @@
         }
       }
     },
+    "Reset Appearance" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset Appearance"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重置外观"
+          }
+        }
+      }
+    },
     "Reset all shortcuts?" : {
       "comment" : "Title of the sheet that puts every shortcut back.",
       "localizations" : {
@@ -9239,6 +9532,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "要恢复到上次更新之前吗？"
+          }
+        }
+      }
+    },
+    "Restore the glass and wallpaper effects. Your chosen image is kept. macOS Reduce Transparency takes priority." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restore the glass and wallpaper effects. Your chosen image is kept. macOS Reduce Transparency takes priority."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "恢复默认的毛玻璃和壁纸效果，保留已选图片。优先遵循 macOS 的“降低透明度”设置。"
           }
         }
       }
@@ -9821,6 +10130,22 @@
         }
       }
     },
+    "Selected image" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selected image"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已选图片"
+          }
+        }
+      }
+    },
     "Send Feedback" : {
       "comment" : "Title of the Send Feedback sheet.",
       "localizations" : {
@@ -10272,6 +10597,22 @@
         }
       }
     },
+    "Show wallpaper on web pages" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show wallpaper on web pages"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在网页中显示壁纸"
+          }
+        }
+      }
+    },
     "Shows the space’s name large and light above its tabs. When off, it’s a plain heading." : {
       "comment" : "Explanation under “Large space names” in Settings › General.",
       "localizations" : {
@@ -10580,6 +10921,22 @@
         }
       }
     },
+    "Soft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soft"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "轻盈"
+          }
+        }
+      }
+    },
     "Solid" : {
       "comment" : "VoiceOver, the See-through slider's value when nothing shows through.",
       "localizations" : {
@@ -10697,6 +11054,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "空间 %lld"
+          }
+        }
+      }
+    },
+    "Space Color" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Space Color"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "空间颜色"
           }
         }
       }
@@ -11319,6 +11692,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "安全连接被切断了，通常是你所在的网络造成的。请再试一次，或换一个网络。"
+          }
+        }
+      }
+    },
+    "The sign-in form changed. Select the field and try again." : {
+      "comment" : "Native password fill was cancelled because the original form changed.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The sign-in form changed. Select the field and try again."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登录表单已更改，请重新选择输入框后再试。"
           }
         }
       }
@@ -12372,6 +12762,23 @@
         }
       }
     },
+    "Use macOS Passwords…" : {
+      "comment" : "Opens native password fields with system AutoFill for this website.",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use macOS Passwords…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用 macOS 密码…"
+          }
+        }
+      }
+    },
     "Use your camera" : {
       "comment" : "A site's permission question, without its question mark.",
       "localizations" : {
@@ -12609,6 +13016,86 @@
         }
       }
     },
+    "Wallpaper" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wallpaper"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "壁纸"
+          }
+        }
+      }
+    },
+    "Wallpaper blur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wallpaper blur"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "壁纸模糊程度"
+          }
+        }
+      }
+    },
+    "Wallpaper image" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wallpaper image"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "壁纸图片"
+          }
+        }
+      }
+    },
+    "Wallpaper opacity" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wallpaper opacity"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "壁纸不透明度"
+          }
+        }
+      }
+    },
+    "Wallpaper shading" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wallpaper shading"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "壁纸遮罩强度"
+          }
+        }
+      }
+    },
     "Weak" : {
       "comment" : "A kind of password in the Passwords window's column: easy to guess.",
       "localizations" : {
@@ -12627,6 +13114,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "网页检查器"
+          }
+        }
+      }
+    },
+    "Web page background opacity" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Web page background opacity"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "网页背景不透明度"
           }
         }
       }
@@ -12803,6 +13306,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "窗口"
+          }
+        }
+      }
+    },
+    "Window background" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Window background"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "窗口背景"
           }
         }
       }
@@ -13932,6 +14451,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "阻止位置"
+          }
+        }
+      }
+    },
+    "macOS blurs the desktop behind the window. Materials change its density." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS blurs the desktop behind the window. Materials change its density."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 会模糊窗口后方的桌面，不同材质呈现不同的通透感。"
           }
         }
       }

@@ -14,6 +14,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             exit(0)
         }
         if !Self.isHostingTests {
+            // Local builds can replace an app without changing its version. Load the installed icon directly,
+            // so the Dock and About do not keep an older IconServices image for the same bundle identifier.
+            if let icon = Self.bundledApplicationIcon() { NSApp.applicationIconImage = icon }
             // A new version backs up the profile the last one left, and a restore asked for before restarting puts
             // a backup back, both before anything reads it.
             let info = Bundle.main.infoDictionary
@@ -24,6 +27,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         Shortcuts.apply()
         NSAppleEventManager.shared().setEventHandler(self, andSelector: #selector(handleGetURL(_:withReply:)),
                                                      forEventClass: AEEventClass(kInternetEventClass), andEventID: AEEventID(kAEGetURL))
+    }
+
+    /// Read the compiled, multi-resolution icon without going through Launch Services' cached app image.
+    static func bundledApplicationIcon(in bundle: Bundle = .main) -> NSImage? {
+        guard let file = bundle.object(forInfoDictionaryKey: "CFBundleIconFile") as? String else { return nil }
+        let name = (file as NSString).deletingPathExtension
+        let ext = (file as NSString).pathExtension
+        guard let url = bundle.url(forResource: name, withExtension: ext.isEmpty ? "icns" : ext) else { return nil }
+        return NSImage(contentsOf: url)
     }
 
     /// Unit tests run inside the app; they must never touch the person's windows, session or extensions.

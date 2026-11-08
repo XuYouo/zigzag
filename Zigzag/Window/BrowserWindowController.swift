@@ -125,6 +125,10 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         UndoClock.start()
         tabManager.host = self
         tokens.append(tabManager.changed.observe { [weak self] change in self?.tabManagerChanged(change) })
+        tokens.append(BrowserAppearance.changed.observe { [weak self] in
+            self?.applySpaceColor(animated: false)
+            Brand.themeChanged.send()
+        })
         tokens.append(Library.shared.changed.observe { [weak self] in self?.libraryChanged() })
         // Reduce Transparency turned on or off while Zigzag is open: the window follows at once.
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(displayOptionsChanged),
@@ -447,7 +451,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
         root.sidebarContainer.grain = grain
     }
 
-    @objc private func displayOptionsChanged() { applySpaceColor(animated: false) }
+    @objc private func displayOptionsChanged() { BrowserAppearance.changed.send() }
 
     /// Handoff, as in Safari: the web page you're on, offered to your iPhone, iPad or other Mac. Never a private
     /// window's, and never Zigzag's own pages or a local file.
@@ -485,21 +489,21 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
                 window?.appearance = name.flatMap(NSAppearance.init(named:))
             }
         }
-        // Reduce Transparency in System Settings: a see-through space shows its color solid instead.
-        let clear = !tabManager.isPrivate && space.isSeeThrough && !NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency
-        // Solid, the space's own color at full strength; see-through, thinned over the frosting.
-        let reduced = space.isSeeThrough && !clear
-        let color = tabManager.isPrivate ? SpaceColor.graphite.background : reduced ? space.background : space.frameColor
-        let end = tabManager.isPrivate ? nil : reduced ? space.background2 : space.frameColor2
-        // See-through: the window lets the frosted desktop through, and the space's color washes over it, thinner the
-        // more shows.
+        let native = BrowserAppearance.background != .space
+        let clear = (native || (!tabManager.isPrivate && space.isSeeThrough)) && !BrowserAppearance.reducesTransparency
+        let base = tabManager.isPrivate ? SpaceColor.graphite.background : space.background
+        let end = tabManager.isPrivate ? nil : space.background2
+        let alpha = native && clear ? 1 - BrowserAppearance.transparency : 1.0
+        let color = native ? base.withAlphaComponent(alpha) : (clear ? space.frameColor : base)
         window?.isOpaque = !clear
         window?.backgroundColor = clear ? .clear : .windowBackgroundColor
-        root.setGlass(clear, clear: space.usesClearGlass, tint: space.frameColor)
-        // See-through, the wash goes in the gradient layer, the one above the frosted desktop (the frame's own color
-        // sits under it and would be hidden); a single color washes as a gradient of itself.
-        root.setColor(clear ? .clear : color, animated: animated)
-        root.setGradient(from: color, to: clear ? end ?? color : end, angle: space.gradientAngle, animated: animated)
+        root.setGlass(clear, clear: !native && space.usesClearGlass, tint: color)
+        root.refreshWallpaper()
+        root.setColor(clear ? .clear : base, animated: animated)
+        // Wallpaper carries its own shading. Glass uses the space's tint as an adjustable wash.
+        let wash = BrowserAppearance.background == .wallpaper && clear ? NSColor.clear : color
+        root.setGradient(from: wash, to: clear ? (native ? wash : space.frameColor2 ?? color) : end,
+                         angle: space.gradientAngle, animated: animated)
         root.setGrain(tabManager.isPrivate ? 0 : space.grain ?? 0, animated: animated)
         root.sidebarContainer.tint = color
         root.sidebarContainer.gradient = end.map { ($0, space.gradientAngle) }
@@ -1160,12 +1164,7 @@ final class BrowserWindowController: NSWindowController, NSWindowDelegate {
 
     private func updateWindowTitle() {
         let tab = tabManager.selectedTab
-        // Each title change makes AppKit relay out the title bar; skip the ones that change nothing.
-        let title = tab?.displayTitle ?? "Zigzag"
-        if window?.title != title { window?.title = title }
-        // Lets accessibility clients (1Password, Raycast, Shortcuts) know which page is showing.
-        window?.representedURL = nil
-        window?.setAccessibilityDocument(tab?.url?.absoluteString)
+        browserWindow.updatePageIdentity(title: tab?.displayTitle ?? "Zigzag", url: tab?.url)
     }
 
     private func downloadsChanged() {
